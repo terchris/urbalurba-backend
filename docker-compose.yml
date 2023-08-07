@@ -1,0 +1,50 @@
+# docker-compose.yml - setup backend for urbalurba
+version: '3.9'
+
+services:
+
+
+  redis:
+    image: 'redis:latest'
+    container_name: redis
+    environment:
+      - REDIS_PORT=6379
+#      - REDIS_PASSWORD=is set by env in ansible playbook
+    ports:
+      - '${REDIS_PORT}:${REDIS_PORT}'
+    volumes:
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+      - urbalurba_redis_data:/data
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.1
+    container_name: meilisearch
+    environment:
+      - MEILISEARCH_PORT=6379
+    ports:
+      - '${MEILISEARCH_PORT}:${MEILISEARCH_PORT}'
+    volumes:
+      - meilisearch_data:/data.ms
+
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    environment:
+      - NGINX_PORT=919191
+    ports:
+      - '${NGINX_PORT}:80'
+    volumes:
+      - urbalurbafiles:/usr/share/nginx/html
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+
+
+volumes:
+  urbalurba_files:
+  meilisearch_data:
+  redis_data:
+
+
+networks:
+  default:
+    name: urbalurba-network
