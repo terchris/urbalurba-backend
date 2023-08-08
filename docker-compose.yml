@@ -8,10 +8,12 @@ services:
     image: 'redis:latest'
     container_name: redis
     environment:
-      - REDIS_PORT=6379
+      - REDIS_PORT=${REDIS_PORT}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
     ports:
       - '${REDIS_PORT}:${REDIS_PORT}'
+    networks:
+      - urbalurba-network      
     volumes:
       - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
       - urbalurba_redis_data:/data
@@ -20,9 +22,12 @@ services:
     image: getmeili/meilisearch:v1.1
     container_name: meilisearch
     environment:
-      - MEILISEARCH_PORT=6379
+      - MEILISEARCH_PORT=${MEILISEARCH_PORT}
+      - MEILI_MASTER_KEY=${MEILI_MASTER_KEY}
     ports:
       - '${MEILISEARCH_PORT}:${MEILISEARCH_PORT}'
+    networks:
+      - urbalurba-network      
     volumes:
       - meilisearch_data:/data.ms
 
@@ -31,20 +36,22 @@ services:
     image: nginx:latest
     container_name: nginx
     environment:
-      - NGINX_PORT=919191
+      - NGINX_PORT=${NGINX_PORT}
     ports:
       - '${NGINX_PORT}:80'
+    networks:
+      - urbalurba-network      
     volumes:
       - urbalurbafiles:/usr/share/nginx/html
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
 
 
 volumes:
-  urbalurba_files:
+  urbalurbafiles:
   meilisearch_data:
   redis_data:
 
 
 networks:
-  default:
-    name: urbalurba-network
+  urbalurba-network:
+    external: true
